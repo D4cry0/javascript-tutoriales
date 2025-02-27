@@ -110,7 +110,7 @@ async function main() {
           return;
         }
 
-        const imageExtension = path.extname(imageUrl);
+        const imageExtension = path.extname(imageUrl.split('?')[0]);
         const folderPath = `${outputDirectory}/${currentSku}`;
 
         if (!fs.existsSync(folderPath)) {
@@ -137,27 +137,30 @@ async function main() {
 }
 
 async function downloadImage(url, imagePath) {
+  try {
     if (!fs.existsSync(imagePath)) {
-  const response = await axios({
-    url,
-    method: 'GET',
-    responseType: 'stream',
-  });
+      const response = await axios({
+        url,
+        method: 'GET',
+        responseType: 'stream',
+      });
 
-  return new Promise((resolve, reject) => {
-
-        response.data
-        .pipe(fs.createWriteStream(imagePath))
-        .on('finish', () => {
-            console.log('Imagen descargada:', imagePath);
-            resolve();
-        })
-        .on('error', (error) => {
-            console.error('Error al descargar imagen:', error);
-            reject(error);
-        });
-    });
-}
+      return new Promise((resolve, reject) => {
+          response.data
+          .pipe(fs.createWriteStream(imagePath))
+          .on('finish', () => {
+              console.log('Imagen descargada:', imagePath);
+              resolve();
+          })
+          .on('error', (error) => {
+              console.error('Error al descargar imagen:', error);
+              reject(error);
+          });
+      });
+    }
+  } catch (error) {
+    console.error("No se descargo: " + url);
+  }
 }
 
 main()
